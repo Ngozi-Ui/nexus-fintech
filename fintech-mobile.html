@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus - Mobile Fintech App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        html, body, #app { width: 100%; height: 100%; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .slide-up { animation: slideUp 0.3s ease-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in { animation: fadeIn 0.8s ease-out; }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spin-slow { animation: spin 3s linear infinite; }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        class FintechApp {
+            constructor() {
+                this.state = {
+                    screen: 'splash',
+                    splashLoading: true,
+                    isSignUp: false,
+                    user: null,
+                    activeTab: 'home',
+                    showPassword: false,
+                    showModal: null,
+                    formData: { email: '', password: '', name: '' }
+                };
+
+                setTimeout(() => {
+                    this.state.splashLoading = false;
+                    this.render();
+                }, 2500);
+
+                this.render();
+            }
+
+            setState(updates) {
+                this.state = { ...this.state, ...updates };
+                this.render();
+            }
+
+            handleInputChange(e) {
+                const { name, value } = e.target;
+                this.setState({
+                    formData: { ...this.state.formData, [name]: value }
+                });
+            }
+
+            handleAuth(e) {
+                e.preventDefault();
+                const { email, password, name } = this.state.formData;
+                if (email && password) {
+                    this.setState({
+                        user: {
+                            name: this.state.isSignUp ? name : 'Alex',
+                            email,
+                            balance: 12450.50,
+                            growth: 2.4,
+                            cardNumber: '4829'
+                        },
+                        screen: 'app',
+                        formData: { email: '', password: '', name: '' }
+                    });
+                }
+            }
+
+            getSVG(name, size = 24, color = 'currentColor') {
+                const sizeMap = { 16: 4, 18: 4, 20: 5, 24: 6, 32: 8, 40: 10 };
+                const sizeClass = `w-${sizeMap[size]} h-${sizeMap[size]}`;
+                
+                const icons = {
+                    wallet: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><path d="M1 10h22"/></svg>`,
+                    home: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+                    creditCard: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><path d="M1 10h22"/></svg>`,
+                    settings: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m3.08 3.08l4.24 4.24M1 12h6m6 0h6m-1.78 7.78l-4.24-4.24m-3.08-3.08l-4.24-4.24"/></svg>`,
+                    send: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+                    plus: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+                    trending: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 17"/><polyline points="23 6 23 12 17 12"/></svg>`,
+                    eye: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+                    eyeOff: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+                    arrow: `<svg class="${sizeClass}" viewBox="0 0 24 24" stroke="${color}" fill="none" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`
+                };
+                return icons[name] || '';
+            }
+
+            renderSplash() {
+                if (this.state.screen === 'splash' && this.state.splashLoading) {
+                    return `
+                        <div class="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center overflow-hidden w-full h-full">
+                            <div class="absolute top-20 left-10 w-80 h-80 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-full blur-3xl animate-pulse"></div>
+                            <div class="absolute bottom-20 right-10 w-80 h-80 bg-gradient-to-l from-blue-500/10 to-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+                            <div class="relative z-10 text-center px-6">
+                                <div class="mb-6 flex justify-center">
+                                    <div class="relative w-24 h-24 flex items-center justify-center">
+                                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full spin-slow"></div>
+                                        <div class="relative bg-slate-950 rounded-full w-20 h-20 flex items-center justify-center border border-emerald-500/30">
+                                            ${this.getSVG('wallet', 40, 'rgb(52, 211, 153)')}
+                                        </div>
+                                    </div>
+                                </div>
+                                <h1 class="text-5xl font-light tracking-tight text-white mb-2">Nexus</h1>
+                                <p class="text-emerald-400/70 text-xs tracking-widest font-light">FINANCIAL FREEDOM</p>
+                                <div class="mt-12 flex justify-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" style="animation-delay: 0.3s"></div>
+                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" style="animation-delay: 0.6s"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                return '';
+            }
+
+            renderAuth() {
+                if (this.state.user) return '';
+                
+                return `
+                    <div class="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col items-center justify-center w-full h-full p-6 overflow-hidden">
+                        <div class="absolute top-0 left-0 w-80 h-80 bg-emerald-500/5 rounded-full blur-3xl"></div>
+                        <div class="absolute bottom-0 right-0 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl"></div>
+                        <div class="relative z-10 w-full max-w-sm flex flex-col h-full justify-between py-8">
+                            <div class="text-center">
+                                <div class="flex justify-center mb-6">
+                                    <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center">
+                                        ${this.getSVG('wallet', 32, 'white')}
+                                    </div>
+                                </div>
+                                <h1 class="text-4xl font-light text-white mb-2">Nexus</h1>
+                                <p class="text-slate-400 text-sm">Smart banking at your fingertips</p>
+                            </div>
+
+                            <form id="authForm" class="w-full space-y-4">
+                                ${this.state.isSignUp ? `
+                                    <div>
+                                        <label class="block text-xs font-medium text-slate-300 mb-2">Full Name</label>
+                                        <input type="text" name="name" value="${this.state.formData.name}" placeholder="Jane Doe" class="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm">
+                                    </div>
+                                ` : ''}
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-2">Email</label>
+                                    <input type="email" name="email" value="${this.state.formData.email}" placeholder="you@example.com" class="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-300 mb-2">Password</label>
+                                    <div class="relative">
+                                        <input type="${this.state.showPassword ? 'text' : 'password'}" name="password" value="${this.state.formData.password}" placeholder="••••••••" class="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-sm">
+                                        <button type="button" id="togglePassword" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500">
+                                            ${this.getSVG(this.state.showPassword ? 'eyeOff' : 'eye', 20)}
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium py-4 rounded-xl hover:from-emerald-600 hover:to-cyan-600 transition-all duration-300 flex items-center justify-center gap-2 mt-8">
+                                    ${this.state.isSignUp ? 'Create Account' : 'Sign In'}
+                                    ${this.getSVG('arrow', 18)}
+                                </button>
+                            </form>
+
+                            <div>
+                                <div class="text-center border-t border-slate-700 pt-6 mb-4">
+                                    <p class="text-slate-400 text-sm">
+                                        ${this.state.isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                                        <button id="toggleAuthMode" class="text-emerald-400 font-medium ml-1">${this.state.isSignUp ? 'Sign In' : 'Sign Up'}</button>
+                                    </p>
+                                </div>
+                                <div class="p-3 bg-slate-800/30 border border-slate-700/50 rounded-xl">
+                                    <p class="text-xs text-slate-400"><span class="font-medium text-slate-300">Demo:</span> Use any email & password</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderHome() {
+                const { user } = this.state;
+                return `
+                    <div class="pb-24">
+                        <div class="px-5 pt-6 pb-4 bg-gradient-to-b from-slate-900 to-transparent">
+                            <div class="flex items-center justify-between mb-8">
+                                <div>
+                                    <p class="text-slate-400 text-sm">Welcome back</p>
+                                    <h1 class="text-2xl font-light text-white">${user.name}</h1>
+                                </div>
+                                <button class="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-400">${this.getSVG('settings', 20)}</button>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/30 rounded-2xl p-6 mb-6">
+                                <p class="text-slate-400 text-xs uppercase tracking-widest mb-3">Total Balance</p>
+                                <h2 class="text-4xl font-light text-white mb-6">$${user.balance.toLocaleString()}</h2>
+                                <div class="bg-slate-900/60 backdrop-blur rounded-xl p-4 space-y-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="text-slate-500 text-xs mb-1">Card Number</p>
+                                            <p class="font-mono text-sm tracking-widest text-white">•••• •••• •••• ${user.cardNumber}</p>
+                                        </div>
+                                        ${this.getSVG('wallet', 20, 'rgb(52, 211, 153, 0.5)')}
+                                    </div>
+                                    <div class="border-t border-slate-700/50 pt-4 flex justify-between text-xs">
+                                        <div>
+                                            <p class="text-slate-500 mb-1">Card Holder</p>
+                                            <p class="text-white font-light">${user.name}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-slate-500 mb-1">Expires</p>
+                                            <p class="text-white font-light">12/26</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 mb-6">
+                                <button id="sendBtn" class="flex flex-col items-center gap-2 p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-emerald-500/50">
+                                    <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center">${this.getSVG('send', 20, 'rgb(52, 211, 153)')}</div>
+                                    <span class="text-xs font-light text-white">Send</span>
+                                </button>
+                                <button id="addBtn" class="flex flex-col items-center gap-2 p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-cyan-500/50">
+                                    <div class="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">${this.getSVG('plus', 20, 'rgb(34, 211, 238)')}</div>
+                                    <span class="text-xs font-light text-white">Add Money</span>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl border border-slate-700/50">
+                                <div class="flex items-center gap-2">
+                                    ${this.getSVG('trending', 16, user.growth > 0 ? 'rgb(52, 211, 153)' : 'rgb(239, 68, 68)')}
+                                    <span class="text-sm font-light ${user.growth > 0 ? 'text-emerald-400' : 'text-red-400'}">${user.growth}% this month</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="px-5 mt-6">
+                            <h3 class="text-lg font-light text-white mb-4">Recent Transactions</h3>
+                            <div class="space-y-3">
+                                ${[
+                                    { name: 'Spotify', amount: '-12.99', type: 'expense', icon: '🎵', time: 'Today' },
+                                    { name: 'Salary Deposit', amount: '+3,500.00', type: 'income', icon: '💰', time: 'Yesterday' },
+                                    { name: 'Coffee Shop', amount: '-5.40', type: 'expense', icon: '☕', time: '2 days ago' },
+                                    { name: 'Gas Station', amount: '-45.00', type: 'expense', icon: '⛽', time: '3 days ago' },
+                                    { name: 'Transfer from David', amount: '+100.00', type: 'income', icon: '👤', time: '1 week ago' }
+                                ].map((txn, i) => `
+                                    <div class="flex items-center justify-between p-3.5 bg-slate-800/30 border border-slate-700/50 rounded-xl hover:bg-slate-800/50">
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-2xl">${txn.icon}</span>
+                                            <div>
+                                                <p class="text-white font-light text-sm">${txn.name}</p>
+                                                <p class="text-slate-500 text-xs">${txn.time}</p>
+                                            </div>
+                                        </div>
+                                        <p class="text-sm font-light ${txn.type === 'income' ? 'text-emerald-400' : 'text-slate-300'}">${txn.amount}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderCards() {
+                const { user } = this.state;
+                return `
+                    <div class="p-5 pb-24">
+                        <h1 class="text-2xl font-light text-white mb-6 pt-4">My Cards</h1>
+                        <div class="bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl p-6 text-white mb-6 shadow-lg">
+                            <div class="flex justify-between items-start mb-12">
+                                <div>
+                                    <p class="text-white/70 text-xs uppercase tracking-widest mb-2">Card</p>
+                                    <p class="font-mono text-lg tracking-widest">•••• •••• •••• ${user.cardNumber}</p>
+                                </div>
+                                ${this.getSVG('wallet', 24, 'rgba(255,255,255,0.5)')}
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-white/70 text-xs uppercase tracking-widest mb-1">Card Holder</p>
+                                    <p class="font-light">${user.name}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-white/70 text-xs uppercase tracking-widest mb-1">Expires</p>
+                                    <p class="font-light">12/26</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 mb-6">
+                            <button class="w-full flex items-center gap-3 p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-slate-600">
+                                <div class="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">${this.getSVG('eye', 18, 'rgb(148, 163, 184)')}</div>
+                                <div class="text-left">
+                                    <p class="text-white text-sm font-light">View Card Details</p>
+                                    <p class="text-slate-500 text-xs">Full card information</p>
+                                </div>
+                            </button>
+                            <button class="w-full flex items-center gap-3 p-4 bg-slate-800/50 border border-slate-700 rounded-xl hover:border-slate-600">
+                                <div class="w-10 h-10 bg-slate-700 rounded-lg flex items-center justify-center">${this.getSVG('settings', 18, 'rgb(148, 163, 184)')}</div>
+                                <div class="text-left">
+                                    <p class="text-white text-sm font-light">Card Settings</p>
+                                    <p class="text-slate-500 text-xs">Limit, security & more</p>
+                                </div>
+                            </button>
+                            <button class="w-full flex items-center gap-3 p-4 bg-slate-800/50 border border-red-700/30 rounded-xl hover:border-red-600/50">
+                                <div class="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center">❄️</div>
+                                <div class="text-left">
+                                    <p class="text-red-400 text-sm font-light">Freeze Card</p>
+                                    <p class="text-slate-500 text-xs">Temporarily disable</p>
+                                </div>
+                            </button>
+                        </div>
+                        <button class="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-700 rounded-xl text-slate-400 hover:text-slate-300">
+                            ${this.getSVG('plus', 20)} <span class="font-light">Add Another Card</span>
+                        </button>
+                    </div>
+                `;
+            }
+
+            renderApp() {
+                if (!this.state.user || this.state.screen !== 'app') return '';
+
+                return `
+                    <div class="fixed inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 w-full h-full overflow-hidden flex flex-col">
+                        <div class="flex-1 overflow-y-auto bg-slate-950">
+                            ${this.state.activeTab === 'home' ? this.renderHome() : this.renderCards()}
+                        </div>
+
+                        <div class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur border-t border-slate-800">
+                            <div class="flex items-center justify-around">
+                                <button id="homeTab" class="flex-1 flex flex-col items-center justify-center py-4 transition-colors ${this.state.activeTab === 'home' ? 'text-emerald-400' : 'text-slate-500'}">
+                                    ${this.getSVG('home', 24, this.state.activeTab === 'home' ? 'rgb(52, 211, 153)' : 'rgb(100, 116, 139)')}
+                                    <span class="text-xs mt-1 font-light">Home</span>
+                                </button>
+                                <button id="cardsTab" class="flex-1 flex flex-col items-center justify-center py-4 transition-colors ${this.state.activeTab === 'cards' ? 'text-emerald-400' : 'text-slate-500'}">
+                                    ${this.getSVG('creditCard', 24, this.state.activeTab === 'cards' ? 'rgb(52, 211, 153)' : 'rgb(100, 116, 139)')}
+                                    <span class="text-xs mt-1 font-light">Cards</span>
+                                </button>
+                                <button id="logoutBtn" class="flex-1 flex flex-col items-center justify-center py-4 text-slate-500">
+                                    ${this.getSVG('settings', 24, 'rgb(100, 116, 139)')}
+                                    <span class="text-xs mt-1 font-light">Logout</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        ${this.state.showModal ? `
+                            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end">
+                                <div class="w-full bg-slate-900 rounded-t-3xl p-6 border-t border-slate-800 slide-up">
+                                    <div class="mb-6">
+                                        <h2 class="text-2xl font-light text-white mb-2">${this.state.showModal === 'send' ? 'Send Money' : 'Add Money'}</h2>
+                                        <p class="text-slate-400 text-sm">${this.state.showModal === 'send' ? 'Transfer funds to another account' : 'Top up your wallet'}</p>
+                                    </div>
+                                    <div class="space-y-4 mb-6">
+                                        <input type="text" placeholder="${this.state.showModal === 'send' ? 'Recipient email' : 'Amount'}" class="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-xl text-white">
+                                        <input type="text" placeholder="Amount" class="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-xl text-white">
+                                        <textarea placeholder="Optional note" class="w-full px-4 py-3.5 bg-slate-800/50 border border-slate-700 rounded-xl text-white resize-none" rows="2"></textarea>
+                                    </div>
+                                    <button class="w-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium py-4 rounded-xl mb-3">Continue</button>
+                                    <button id="closeModal" class="w-full bg-slate-800 text-white font-medium py-4 rounded-xl">Cancel</button>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            render() {
+                const app = document.getElementById('app');
+                app.innerHTML = this.renderSplash() || this.renderAuth() || this.renderApp();
+                this.attachEventListeners();
+            }
+
+            attachEventListeners() {
+                // Auth form
+                const authForm = document.getElementById('authForm');
+                if (authForm) {
+                    authForm.addEventListener('submit', (e) => this.handleAuth(e));
+                    const inputs = authForm.querySelectorAll('input, textarea');
+                    inputs.forEach(input => {
+                        input.addEventListener('change', (e) => this.handleInputChange(e));
+                    });
+                }
+
+                // Toggle password
+                const togglePassword = document.getElementById('togglePassword');
+                if (togglePassword) {
+                    togglePassword.addEventListener('click', () => {
+                        this.setState({ showPassword: !this.state.showPassword });
+                    });
+                }
+
+                // Toggle auth mode
+                const toggleAuthMode = document.getElementById('toggleAuthMode');
+                if (toggleAuthMode) {
+                    toggleAuthMode.addEventListener('click', () => {
+                        this.setState({
+                            isSignUp: !this.state.isSignUp,
+                            formData: { email: '', password: '', name: '' }
+                        });
+                    });
+                }
+
+                // Tab navigation
+                const homeTab = document.getElementById('homeTab');
+                const cardsTab = document.getElementById('cardsTab');
+                if (homeTab) homeTab.addEventListener('click', () => this.setState({ activeTab: 'home' }));
+                if (cardsTab) cardsTab.addEventListener('click', () => this.setState({ activeTab: 'cards' }));
+
+                // Modals
+                const sendBtn = document.getElementById('sendBtn');
+                const addBtn = document.getElementById('addBtn');
+                const closeModal = document.getElementById('closeModal');
+                if (sendBtn) sendBtn.addEventListener('click', () => this.setState({ showModal: 'send' }));
+                if (addBtn) addBtn.addEventListener('click', () => this.setState({ showModal: 'add' }));
+                if (closeModal) closeModal.addEventListener('click', () => this.setState({ showModal: null }));
+
+                // Logout
+                const logoutBtn = document.getElementById('logoutBtn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        this.setState({
+                            user: null,
+                            screen: 'splash',
+                            splashLoading: true,
+                            activeTab: 'home',
+                            formData: { email: '', password: '', name: '' }
+                        });
+                    });
+                }
+            }
+        }
+
+        new FintechApp();
+    </script>
+</body>
+</html>
